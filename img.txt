@@ -1,0 +1,89 @@
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
+using System.Windows.Forms;
+using ePES.BL;
+using ePES.Entity;
+using System.IO;
+
+namespace ePES.PL
+{
+    /// <summary>
+    /// Interaction logic for UpdateConfirm.xaml
+    /// </summary>
+    public partial class UpdateConfirm : Window
+    {
+        public UpdateConfirm()
+        {
+            InitializeComponent();
+        }
+
+        private void btnUpload_Click(object sender, RoutedEventArgs e)
+        {
+
+            ImageEntity ie = new ImageEntity();
+            ie.customerID = int.Parse(txtUcustomerID.Text);//.ToString();
+            ie.policyNumber = int.Parse(txtUpolicyNumber.Text);
+
+            //    byte[] imageData = ReadImageFile(txtImageUpload.Text);    //This nethod returns image in byte array format.
+            byte[] imageData = null;
+            FileInfo fileInfo = new FileInfo(txtImageUpload.Text);
+            long imageFileLength = fileInfo.Length;
+            FileStream fs = new FileStream(txtImageUpload.Text, FileMode.Open, FileAccess.Read);
+            BinaryReader br = new BinaryReader(fs);
+            imageData = br.ReadBytes((int)imageFileLength);
+
+            //Entity.ImageEntity im = bl.ViewImageDAL(id);
+            //BitmapImage myBitmapImage = new BitmapImage();
+            //MemoryStream ms = new MemoryStream(im.Image);
+            //myBitmapImage.BeginInit();
+            //myBitmapImage.StreamSource = ms;
+            //myBitmapImage.DecodePixelWidth = 200;
+            //myBitmapImage.EndInit();
+            //ImageSource imageSource = myBitmapImage;
+            //UploadImage.Source = imageSource;
+
+            ie.picture = imageData;
+
+            int rws = PolicyValidations.InsertImageCustDOC_BL(ie);
+            if (rws > 0)
+            {
+                System.Windows.MessageBox.Show("Successfully Uploaded");
+            }
+            else
+            {
+                System.Windows.MessageBox.Show("Please Try Again");
+            }
+
+
+        }
+
+        //public byte[] ReadImageFile(string imageLocation)
+        //{
+        //    byte[] imageData = null;
+        //    FileInfo fileInfo = new FileInfo(imageLocation);
+        //    long imageFileLength = fileInfo.Length;
+        //    FileStream fs = new FileStream(imageLocation, FileMode.Open, FileAccess.Read);
+        //    BinaryReader br = new BinaryReader(fs);
+        //    imageData = br.ReadBytes((int)imageFileLength);
+        //    return imageData;
+        //}
+
+        private void btnBrowse_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Forms.OpenFileDialog ofd = new System.Windows.Forms.OpenFileDialog();
+            if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                this.txtImageUpload.Text = ofd.FileName;
+            }
+
+        }
+    }
+}
